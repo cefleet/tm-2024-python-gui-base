@@ -15,6 +15,7 @@ window.push_handlers(keys)
 GRAY=(170,170,170)
 GREEN = (34,139,34)
 WHITE = (255,255,255)
+RED = (255,0,0)
 
 # path config
 path_width = 400
@@ -32,7 +33,15 @@ player_radius = 40
 player = Circle(player_x,player_y,player_radius, color=WHITE )
 player_speed = 150
 
-#vplayer_dir = 'left'
+obstacle_size = 40
+obstacle_speed = 200
+
+obstacles = []
+
+def add_obstacle(dt):
+    obstacle = Rectangle(250,window_height-obstacle_size, obstacle_size, obstacle_size,RED)
+    obstacles.append(obstacle)
+
 def update(dt):
 
     if keys[key.LEFT]:
@@ -46,6 +55,12 @@ def update(dt):
 
     if player.x < path_x+player_radius:
         player.x = path_x + player_radius
+    
+    for obstacle in obstacles[:]:
+        obstacle.y -= obstacle_speed * dt
+        if obstacle.y + obstacle_size < 0:
+            obstacle.delete()
+            obstacles.remove(obstacle)
 
     
 @window.event
@@ -54,6 +69,10 @@ def on_draw():
     green_background.draw()
     path.draw()
     player.draw()
+    for obstacle in obstacles[:]:
+        obstacle.draw()
 
+add_obstacle(1)
+pyglet.clock.schedule_interval(add_obstacle, 2)
 pyglet.clock.schedule_interval(update, 1/60)
 pyglet.app.run()
