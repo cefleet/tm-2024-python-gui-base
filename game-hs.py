@@ -1,6 +1,8 @@
 import pyglet
 from pyglet.shapes import Rectangle, Circle
 from pyglet.window import key
+from pyglet.text import Label
+
 from random import randint
 
 # windows config
@@ -42,6 +44,22 @@ background = Rectangle(0,0,window_width, window_height, GREEN )
 
 path = Rectangle(path_x,0,path_width,window_height,GRAY)
 
+points_label = Label(
+    'Points: 0',
+    font_name='Arial',
+    font_size=18,x=10,y=window_height-30
+)
+
+health_label = Label("Health: 100", 
+                     font_name="Arial", 
+                     font_size=18, x=10,y=window_height-60)
+
+points = 0
+def update_point(dt):
+    global points
+    points += 1
+    points_label.text = f'Points: {points}'
+
 def update(dt):
     if keys[key.LEFT]:
         player.x -= player_speed * dt
@@ -71,7 +89,10 @@ def on_draw():
     player.draw()
     for obstacle in obstacles[:]:
         obstacle.draw()
+    points_label.draw()
+    health_label.draw()
 
+pyglet.clock.schedule_interval(update_point,1)
 pyglet.clock.schedule_interval(add_obstacle, 2)
 pyglet.clock.schedule_interval(update, 1/60.0)
 pyglet.app.run()

@@ -1,7 +1,9 @@
 import pyglet
-
 from pyglet.shapes import Rectangle, Circle
 from pyglet.window import Window, key
+from pyglet.text import Label
+
+from random import randint
 
 # Window config
 window_width = 800
@@ -39,8 +41,21 @@ obstacle_speed = 200
 obstacles = []
 
 def add_obstacle(dt):
-    obstacle = Rectangle(250,window_height-obstacle_size, obstacle_size, obstacle_size,RED)
+    x_pos = randint(
+        int(path.x+obstacle_size), 
+        int(path.x + path_width - obstacle_size)
+        )
+    obstacle = Rectangle(x_pos,window_height-obstacle_size, obstacle_size, obstacle_size,RED)
     obstacles.append(obstacle)
+
+points_label = Label("Points: 0", font_name="Arial",font_size=18,
+                     x=10, y=window_height-30)
+
+points = 0
+def update_points(dt):
+    global points
+    points += 1
+    points_label.text = f'Points: {points}'
 
 def update(dt):
 
@@ -61,7 +76,6 @@ def update(dt):
         if obstacle.y + obstacle_size < 0:
             obstacle.delete()
             obstacles.remove(obstacle)
-
     
 @window.event
 def on_draw():
@@ -72,7 +86,10 @@ def on_draw():
     for obstacle in obstacles[:]:
         obstacle.draw()
 
+    points_label.draw()
+
 add_obstacle(1)
+pyglet.clock.schedule_interval(update_points,1)
 pyglet.clock.schedule_interval(add_obstacle, 2)
 pyglet.clock.schedule_interval(update, 1/60)
 pyglet.app.run()
