@@ -37,6 +37,15 @@ def add_obstacle(dt):
     obstacle = Rectangle(x, window_height-obstacle_size,obstacle_size,obstacle_size,RED)
     obstacles.append(obstacle)
 
+def check_collision():
+    for obstacle in obstacles:
+        if (player.x - player_radius < obstacle.x + obstacle.width and
+            player.x + player_radius > obstacle.x and
+            player.y - player_radius < obstacle.y + obstacle.height and
+            player.y + player_radius > obstacle.y):
+                return obstacle
+    return None
+
 path_width = 400
 path_x = (window_width - path_width)/2
 
@@ -50,7 +59,8 @@ points_label = Label(
     font_size=18,x=10,y=window_height-30
 )
 
-health_label = Label("Health: 100", 
+health = 100
+health_label = Label(f"Health: {health}", 
                      font_name="Arial", 
                      font_size=18, x=10,y=window_height-60)
 
@@ -79,7 +89,13 @@ def update(dt):
             obstacle.delete()
             obstacles.remove(obstacle)
 
-
+    obstacle_hit = check_collision()
+    if obstacle_hit:
+        global health
+        health -= 10
+        health_label.text = f'Health: {health}'
+        obstacles.remove(obstacle_hit)
+        obstacle_hit.delete()
 
 @window.event
 def on_draw():

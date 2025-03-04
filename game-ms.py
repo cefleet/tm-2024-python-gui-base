@@ -48,14 +48,34 @@ def add_obstacle(dt):
     obstacle = Rectangle(x_pos,window_height-obstacle_size, obstacle_size, obstacle_size,RED)
     obstacles.append(obstacle)
 
+points = 0
 points_label = Label("Points: 0", font_name="Arial",font_size=18,
                      x=10, y=window_height-30)
 
-points = 0
 def update_points(dt):
     global points
     points += 1
     points_label.text = f'Points: {points}'
+
+health = 100
+health_label = Label(
+    f'Health: {health}', 
+    font_name='Arial', 
+    font_size=18, 
+    x=10, 
+    y=window_height - 60
+)
+
+def check_collision():
+    for obstacle in obstacles:
+        if(
+            player.x - player_radius < obstacle.x + obstacle.width and
+            player.x + player_radius > obstacle.x and
+            player.y - player_radius < obstacle.y + obstacle.height and
+            player.y + player_radius > obstacle.y
+        ):
+            return obstacle
+    return None
 
 def update(dt):
 
@@ -76,7 +96,14 @@ def update(dt):
         if obstacle.y + obstacle_size < 0:
             obstacle.delete()
             obstacles.remove(obstacle)
-    
+    obstacle_hit = check_collision()
+    if obstacle_hit:
+        global health
+        health -= 10
+        health_label.text = f'Health: {health}'
+        obstacles.remove(obstacle_hit)
+        obstacle_hit.delete()
+
 @window.event
 def on_draw():
     window.clear()
@@ -87,6 +114,7 @@ def on_draw():
         obstacle.draw()
 
     points_label.draw()
+    health_label.draw()
 
 add_obstacle(1)
 pyglet.clock.schedule_interval(update_points,1)
