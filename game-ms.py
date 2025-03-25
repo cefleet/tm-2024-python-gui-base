@@ -66,6 +66,17 @@ health_label = Label(
     y=window_height - 60
 )
 
+game_over = False
+game_over_label = Label(
+    'Game Over',
+    font_size=36,
+    color=RED,
+    x=window_width / 2,
+    anchor_x='center',
+    y=window_height / 2,
+    anchor_y='center'
+)
+
 def check_collision():
     for obstacle in obstacles:
         if(
@@ -97,15 +108,23 @@ def update(dt):
             obstacle.delete()
             obstacles.remove(obstacle)
     obstacle_hit = check_collision()
+    global health
     if obstacle_hit:
-        global health
         health -= 10
         health_label.text = f'Health: {health}'
         obstacles.remove(obstacle_hit)
         obstacle_hit.delete()
 
+    if health <= 0:
+        global game_over
+        game_over = True
+        pyglet.clock.unschedule(update)
+        pyglet.clock.unschedule(update_points)
+        pyglet.clock.unschedule(add_obstacle)
+
 @window.event
 def on_draw():
+    global game_over
     window.clear()
     green_background.draw()
     path.draw()
@@ -115,6 +134,23 @@ def on_draw():
 
     points_label.draw()
     health_label.draw()
+    if game_over:
+        game_over_label.draw()
+
+@window.event
+def on_mouse_press(x,y,button, modifiers):
+    global game_over, health, points, obstacles
+    if game_over:
+        game_over = False
+        health = 100
+        points = 0
+        obstacles.clear()
+        add_obstacle(1)
+        health_label.text = f'Health: {health}'
+        points_label.text =f'Points: {points}'
+        pyglet.clock.schedule_interval(update_points,1)
+        pyglet.clock.schedule_interval(add_obstacle, 2)
+        pyglet.clock.schedule_interval(update, 1/60)
 
 add_obstacle(1)
 pyglet.clock.schedule_interval(update_points,1)
